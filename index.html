@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <title>animation </title>
+    <meta charset="UTF-8">
+    <meta name="description" content="animation">
+    <meta name="keywords" content="animation">
+    <meta name="author" content="Abdu">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div id="app" v-cloak>
+        <svg viewBox="-90 -10 450 200" >
+            <defs>
+              <mask id="donut">
+                <path d="M 0 150
+                     A 45 45, 0, 0, 1, 300 150
+                     L 290 150
+                     A 45 45, 0, 0, 0, 10, 150
+                     L 0 150"
+                     fill="#E6E6E6"
+                     stroke="#E6E6E6" />
+              </mask>
+            </defs>
+
+            <path d="M 0 150
+                     A 45 45, 0, 0, 1, 300 150
+                     L 290 150
+                     A 45 45, 0, 0, 0, 10, 150
+                     L 0 150"
+                     fill="#CECDCC"
+                     stroke="#CECDCC" />
+
+            <g mask="url(#donut)">
+              <rect x="-10" y="150"
+                    height="400"
+                    width="400"
+                    :fill="color"
+                    :transform="`rotate(${rotation} 150 150)`" /><!--add rotation function and to fill color function -->
+            </g>
+            <g
+              stroke="#1F00F5"
+              stroke-width="2"
+              fill="#1F00F5">
+              <circle
+              id="point"
+              cx="5"
+              cy="145"
+              r="10"
+              :transform="`rotate(${rotation} 150 150)`"/> <!--add rotation function-->
+            </g>
+        </svg>
+
+
+        <div id="marker" v-bind:style="{ transform: animation }">
+          <img  src="speedmeter.png" alt="image is not availible" width="100%" height="auto"/>
+          <span class="before-marker" :class="{ beforeMarkerShow: isBeforeMarkerShow }"></span>
+        </div>
+</div>
+<!-- // vue binding -->
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+
+
+<!-- start Vue -->
+<script type="text/javascript">
+
+const newvue = new Vue({
+     el: '#app',
+     data: function(){
+       return{
+         animation: 'rotate( -50deg)',
+         isBeforeMarkerShow: false,
+         numberOfPrecent: 0.0,
+         numberOfDegree: -100,
+         controleSpeed: 15,
+         setTimeout: '',
+       }
+     },
+      computed: {
+        rotation () { // rotate animation calling scale function
+          return this.scale ( this.numberOfPrecent, 1, 190 );
+        },
+        color () {// add color to g tag if value of numberOfPrecent bigger than 0.0
+          if ( this.numberOfPrecent >= 0.0 ) return '#1F00F5';
+        }
+      },
+     methods: {
+       changeValue () { // contolle and increment vaulues for rotation
+         var self = this; // set this to self
+         this.numberOfPrecent += 0.01;// increment value of svg to animate it
+         if ( this.numberOfPrecent > 0.6 || this.numberOfPrecent < 0.2 ) { // contolle speed
+           this.controleSpeed = 8;
+         };
+         this.numberOfDegree +=  2.1; // increment value of image
+         this.animation = 'rotate( '+ this.numberOfDegree +'deg )'; // set animation value to incremented value of numberOfDegree
+
+         if ( this.numberOfPrecent >= 0.8 ) { // stop animation if numberOfPrecent is bigger or 0.8
+           this.numberOfPrecent = 0.8;
+           this.isBeforeMarkerShow = true; // set to true to show span
+           this.numberOfDegree = 55; // set numberOfDegree to 55
+           clearTimeout(this.setTimeout); // stop animation
+         }else {
+           this.isBeforeMarkerShow = false; // set to false
+         };
+        this.setTimeout = setTimeout(function() {
+           self.changeValue(); // recall changeValue function
+         }, 150  / this.controleSpeed );
+       },
+       scale (n, domainMax, rangeMax ) {// calculate vaulues to animate svg
+         const rate = n / domainMax;
+         return rangeMax * rate;
+       },
+     },
+     mounted() {
+       this.$nextTick(() => {
+            this.changeValue(); // call changeValue function after DOM loaded
+   		});
+    }
+    // ende of vue functionality
+  });
+
+</script>
+
+<!-- ende of vue -->
+</body>
+</html>
